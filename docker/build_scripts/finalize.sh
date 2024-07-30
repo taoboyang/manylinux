@@ -35,7 +35,7 @@ cat <<EOF > /usr/local/bin/manylinux-interpreters
 
 set -euo pipefail
 
-/opt/python/cp310-cp310/bin/python $MY_DIR/manylinux-interpreters.py "\$@"
+LD_LIBRARY_PATH=/opt/python/cp310-cp310/lib /opt/python/cp310-cp310/bin/python $MY_DIR/manylinux-interpreters.py "\$@"
 EOF
 chmod 755 /usr/local/bin/manylinux-interpreters
 
@@ -43,10 +43,10 @@ MANYLINUX_INTERPRETERS_NO_CHECK=1 /usr/local/bin/manylinux-interpreters ensure "
 
 # Create venv for auditwheel & certifi
 TOOLS_PATH=/opt/_internal/tools
-/opt/python/cp310-cp310/bin/python -m venv --without-pip ${TOOLS_PATH}
+LD_LIBRARY_PATH=/opt/python/cp310-cp310/lib /opt/python/cp310-cp310/bin/python -m venv --without-pip ${TOOLS_PATH}
 
 # Install certifi and pipx
-/opt/python/cp310-cp310/bin/python -m pip --python ${TOOLS_PATH}/bin/python install -U --require-hashes -r ${MY_DIR}/requirements-base-tools.txt
+LD_LIBRARY_PATH=/opt/python/cp310-cp310/lib /opt/python/cp310-cp310/bin/python -m pip --python ${TOOLS_PATH}/bin/python install -U --require-hashes -r ${MY_DIR}/requirements-base-tools.txt
 
 # Make pipx available in PATH,
 # Make sure when root installs apps, they're also in the PATH
@@ -60,7 +60,7 @@ if [ \$(id -u) -eq 0 ]; then
 	export PIPX_BIN_DIR=/usr/local/bin
 	export PIPX_MAN_DIR=/usr/local/share/man
 fi
-${TOOLS_PATH}/bin/pipx "\$@"
+LD_LIBRARY_PATH=/opt/python/cp310-cp310/lib ${TOOLS_PATH}/bin/pipx "\$@"
 EOF
 chmod 755 /usr/local/bin/pipx
 
@@ -74,7 +74,7 @@ export SSL_CERT_FILE=/opt/_internal/certs.pem
 
 # initialize shared library
 # workaround https://github.com/pypa/pip/issues/9243
-/opt/python/cp310-cp310/bin/python -m pip download --dest /tmp/pinned-wheels --require-hashes -r /opt/_internal/build_scripts/requirements3.10.txt
+LD_LIBRARY_PATH=/opt/python/cp310-cp310/lib /opt/python/cp310-cp310/bin/python -m pip download --dest /tmp/pinned-wheels --require-hashes -r /opt/_internal/build_scripts/requirements3.10.txt
 pipx upgrade-shared --pip-args="--no-index --find-links=/tmp/pinned-wheels"
 
 # install other tools with pipx

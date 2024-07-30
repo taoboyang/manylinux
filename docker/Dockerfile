@@ -12,6 +12,10 @@ ARG PLATFORM
 ARG DEVTOOLSET_ROOTPATH
 ARG LD_LIBRARY_PATH_ARG
 ARG PREPEND_PATH
+ARG http_proxy
+ARG https_proxy
+ARG no_proxy
+
 LABEL maintainer="The ManyLinux project"
 
 ENV AUDITWHEEL_POLICY=${POLICY} AUDITWHEEL_ARCH=${PLATFORM} AUDITWHEEL_PLAT=${POLICY}_${PLATFORM}
@@ -20,6 +24,7 @@ ENV DEVTOOLSET_ROOTPATH=${DEVTOOLSET_ROOTPATH}
 ENV LD_LIBRARY_PATH=${LD_LIBRARY_PATH_ARG}
 ENV PATH=${PREPEND_PATH}${PATH}
 ENV PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
+ENV MAKEFLAGS="-j$(nproc)"
 
 # first copy the fixup mirrors script, keep the script around
 COPY build_scripts/fixup-mirrors.sh /usr/local/sbin/fixup-mirrors
@@ -167,4 +172,5 @@ RUN --mount=type=bind,target=/build_cpython36,from=build_cpython36 \
 
 ENV SSL_CERT_FILE=/opt/_internal/certs.pem
 
+ENV LD_LIBRARY_PATH=/opt/python/cp38-cp38/lib:/opt/python/cp310-cp310/lib
 CMD ["/bin/bash"]

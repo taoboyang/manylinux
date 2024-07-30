@@ -56,26 +56,26 @@ PYTHON_COUNT=0
 for PYTHON in /opt/python/*/bin/python; do
 	# Smoke test to make sure that our Pythons work, and do indeed detect as
 	# being manylinux compatible:
-	$PYTHON $MY_DIR/manylinux-check.py ${AUDITWHEEL_POLICY} ${AUDITWHEEL_ARCH}
+LD_LIBRARY_PATH=$(dirname $PYTHON)/../lib $PYTHON $MY_DIR/manylinux-check.py ${AUDITWHEEL_POLICY} ${AUDITWHEEL_ARCH}
 	# Make sure that SSL cert checking works
-	$PYTHON $MY_DIR/ssl-check.py
-	IMPLEMENTATION=$(${PYTHON} -c "import sys; print(sys.implementation.name)")
-	PYVERS=$(${PYTHON} -c "import sys; print('.'.join(map(str, sys.version_info[:2])))")
-	PY_GIL=$(${PYTHON} -c "import sysconfig; print('t' if sysconfig.get_config_vars().get('Py_GIL_DISABLED', 0) else '')")
+#LD_LIBRARY_PATH=$(dirname $PYTHON)/../lib $PYTHON $MY_DIR/ssl-check.py
+	IMPLEMENTATION=$(LD_LIBRARY_PATH=$(dirname ${PYTHON})/../lib ${PYTHON} -c "import sys; print(sys.implementation.name)")
+	PYVERS=$(LD_LIBRARY_PATH=$(dirname ${PYTHON})/../lib ${PYTHON} -c "import sys; print('.'.join(map(str, sys.version_info[:2])))")
+	PY_GIL=$(LD_LIBRARY_PATH=$(dirname ${PYTHON})/../lib ${PYTHON} -c "import sysconfig; print('t' if sysconfig.get_config_vars().get('Py_GIL_DISABLED', 0) else '')")
 	if [ "${IMPLEMENTATION}" == "cpython" ]; then
 		# Make sure sqlite3 module can be loaded properly and is the manylinux version one
 		# c.f. https://github.com/pypa/manylinux/issues/1030
-		$PYTHON -c 'import sqlite3; print(sqlite3.sqlite_version); assert sqlite3.sqlite_version_info[0:2] >= (3, 34)'
+LD_LIBRARY_PATH=$(dirname $PYTHON)/../lib $PYTHON -c 'import sqlite3; print(sqlite3.sqlite_version); assert sqlite3.sqlite_version_info[0:2] >= (3, 34)'
 		# Make sure tkinter module can be loaded properly
-		$PYTHON -c 'import tkinter; print(tkinter.TkVersion); assert tkinter.TkVersion >= 8.6'
+LD_LIBRARY_PATH=$(dirname $PYTHON)/../lib $PYTHON -c 'import tkinter; print(tkinter.TkVersion); assert tkinter.TkVersion >= 8.6'
 		# cpython shall be available as python
 		LINK_VERSION=$(python${PYVERS}${PY_GIL} -VV)
-		REAL_VERSION=$(${PYTHON} -VV)
+		REAL_VERSION=$(LD_LIBRARY_PATH=$(dirname ${PYTHON})/../lib ${PYTHON} -VV)
 		test "${LINK_VERSION}" = "${REAL_VERSION}"
 	fi
 	# cpythonX.Y / pypyX.Y shall be available directly in PATH
 	LINK_VERSION=$(${IMPLEMENTATION}${PYVERS}${PY_GIL} -VV)
-	REAL_VERSION=$(${PYTHON} -VV)
+	REAL_VERSION=$(LD_LIBRARY_PATH=$(dirname ${PYTHON})/../lib ${PYTHON} -VV)
 	test "${LINK_VERSION}" = "${REAL_VERSION}"
 
 	# check a simple project can be built
@@ -96,7 +96,7 @@ for PYTHON in /opt/python/*/bin/python; do
 		exit 1
 	fi
 	${PYTHON} -m pip install ${REPAIRED_WHEEL}
-	if [ "$(${PYTHON} -c 'import forty_two; print(forty_two.answer())')" != "42" ]; then
+	if [ "$(LD_LIBRARY_PATH=$(dirname ${PYTHON})/../lib ${PYTHON} -c 'import forty_two; print(forty_two.answer())')" != "42" ]; then
 		echo "invalid answer, expecting 42"
 		exit 1
 	fi
@@ -120,6 +120,7 @@ if [ ${EXPECTED_PYTHON_COUNT_ALL} -ne ${PYTHON_COUNT} ]; then
 fi
 
 # minimal tests for tools that should be present
+export LD_LIBRARY_PATH=/opt/python/cp310-cp310/lib
 auditwheel --version
 autoconf --version
 automake --version

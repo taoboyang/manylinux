@@ -33,7 +33,7 @@ pushd Python-${CPYTHON_VERSION}
 PREFIX="/opt/_internal/cpython-${CPYTHON_VERSION}"
 mkdir -p ${PREFIX}/lib
 CFLAGS_EXTRA=""
-CONFIGURE_ARGS="--disable-shared --with-ensurepip=no"
+CONFIGURE_ARGS="--enable-shared --with-ensurepip=no"
 
 if [ "${2:-}" == "nogil" ]; then
 	PREFIX="${PREFIX}-nogil"
@@ -65,7 +65,7 @@ fi
 	CFLAGS_NODIST="${MANYLINUX_CFLAGS} ${MANYLINUX_CPPFLAGS} ${CFLAGS_EXTRA}" \
 	LDFLAGS_NODIST="${MANYLINUX_LDFLAGS}" \
 	--prefix=${PREFIX} ${CONFIGURE_ARGS} > /dev/null
-make > /dev/null
+make -j$(nproc) > /dev/null
 make install > /dev/null
 popd
 rm -rf Python-${CPYTHON_VERSION} Python-${CPYTHON_VERSION}.tgz Python-${CPYTHON_VERSION}.tgz.asc
