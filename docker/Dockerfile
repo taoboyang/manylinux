@@ -153,7 +153,6 @@ COPY --from=build_cpython39 /opt/_internal /opt/_internal/
 COPY --from=build_cpython310 /opt/_internal /opt/_internal/
 COPY --from=build_cpython311 /opt/_internal /opt/_internal/
 COPY --from=build_cpython312 /opt/_internal /opt/_internal/
-RUN manylinux-entrypoint /build_scripts/finalize-python.sh
 
 
 FROM runtime_base
@@ -177,4 +176,5 @@ RUN manylinux-entrypoint /build_scripts/finalize.sh && rm -rf /build_scripts
 
 ENV SSL_CERT_FILE=/opt/_internal/certs.pem
 
+ENV LD_LIBRARY_PATH=/opt/python/cp38-cp38/lib:/opt/python/cp310-cp310/lib
 CMD ["/bin/bash"]

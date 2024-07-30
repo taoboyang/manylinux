@@ -29,7 +29,7 @@ if ! perl -e 'use 5.14.0' &> /dev/null; then
 	tar -xzf ${PERL_ROOT}.tar.gz
 	pushd ${PERL_ROOT}
 	./Configure -des -Dprefix=/tmp/perl-libxcrypt > /dev/null
-	make -j$(nproc) > /dev/null
+	make > /dev/null
 	make install > /dev/null
 	popd
 

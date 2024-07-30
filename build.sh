@@ -27,6 +27,7 @@ else
 	exit 1
 fi
 
+PLATFORM_ARG="linux/${PLATFORM}"
 # setup BASEIMAGE and its specific properties
 if [ "${POLICY}" == "manylinux2014" ]; then
 	if [ "${PLATFORM}" == "s390x" ]; then
@@ -63,6 +64,7 @@ export LD_LIBRARY_PATH_ARG
 BUILD_ARGS_COMMON="
 	--build-arg POLICY --build-arg PLATFORM --build-arg BASEIMAGE
 	--build-arg DEVTOOLSET_ROOTPATH --build-arg PREPEND_PATH --build-arg LD_LIBRARY_PATH_ARG
+	--platform ${PLATFORM_ARG}
 	--rm -t quay.io/pypa/${POLICY}_${PLATFORM}:${COMMIT_SHA}
 	-f docker/Dockerfile docker/
 "
